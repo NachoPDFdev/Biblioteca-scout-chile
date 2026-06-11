@@ -1,22 +1,33 @@
+const CONFIG = window.SCOUT_LIBRARY_CONFIG || {};
+const ASSET_BASE_URL = normalizeBaseUrl(CONFIG.assetBaseUrl || "");
+
 const state = {
   items: [],
   query: "",
   category: "TODAS",
-  baseUrl: localStorage.getItem("scoutLibraryBaseUrl") || "",
 };
 
 const els = {
-  baseUrl: document.querySelector("#base-url"),
   search: document.querySelector("#search"),
   categoryChips: document.querySelector("#category-chips"),
-  results: document.querySelector("#results"),
+  quickNav: document.querySelector("#quick-nav"),
+  sections: document.querySelector("#sections"),
   resultCount: document.querySelector("#result-count"),
   fileCount: document.querySelector("#file-count"),
   generatedAt: document.querySelector("#generated-at"),
-  template: document.querySelector("#card-template"),
+  configWarning: document.querySelector("#config-warning"),
+  sectionTemplate: document.querySelector("#section-template"),
+  cardTemplate: document.querySelector("#card-template"),
+  viewer: document.querySelector("#viewer"),
+  viewerBackdrop: document.querySelector("#viewer-backdrop"),
+  viewerFrame: document.querySelector("#viewer-frame"),
+  viewerTitle: document.querySelector("#viewer-title"),
+  viewerOpen: document.querySelector("#viewer-open"),
+  viewerClose: document.querySelector("#viewer-close"),
 };
 
 const COLLATOR = new Intl.Collator("es", { sensitivity: "base" });
+const PRIORITY_CATEGORIES = ["TROPA", "GUIAS", "DIRIGENTES", "ENA", "MANADA", "HADITAS"];
 
 boot();
 
@@ -24,109 +35,148 @@ async function boot() {
   const response = await fetch("./inventory.json");
   const data = await response.json();
   state.items = data.items;
+
   els.fileCount.textContent = String(data.fileCount);
   els.generatedAt.textContent = data.generatedAt;
-  els.baseUrl.value = state.baseUrl;
+  els.configWarning.hidden = Boolean(ASSET_BASE_URL);
 
   renderCategories();
-  renderResults();
+  renderQuickNav();
+  renderSections();
 
-  els.search.addEventListener("input", onSearchInput);
-  els.baseUrl.addEventListener("input", onBaseUrlInput);
-}
-
-function onSearchInput(event) {
-  state.query = event.target.value.trim().toLowerCase();
-  renderResults();
-}
-
-function onBaseUrlInput(event) {
-  state.baseUrl = normalizeBaseUrl(event.target.value);
-  localStorage.setItem("scoutLibraryBaseUrl", state.baseUrl);
-  renderResults();
+  els.search.addEventListener("input", (event) => {
+    state.query = event.target.value.trim().toLowerCase();
+    renderSections();
+  });
+  els.viewerClose.addEventListener("click", closeViewer);
+  els.viewerBackdrop.addEventListener("click", closeViewer);
 }
 
 function renderCategories() {
-  const categories = ["TODAS", ...new Set(state.items.map((item) => item.category).sort(COLLATOR.compare))];
+  const categories = ["TODAS", ...orderedCategories()];
   els.categoryChips.replaceChildren();
 
   for (const category of categories) {
     const button = document.createElement("button");
     button.type = "button";
     button.className = `chip${category === state.category ? " is-active" : ""}`;
-    button.textContent = category;
+    button.textContent = formatCategory(category);
     button.addEventListener("click", () => {
       state.category = category;
       renderCategories();
-      renderResults();
+      renderSections();
     });
     els.categoryChips.appendChild(button);
   }
 }
 
-function renderResults() {
-  const filtered = state.items.filter((item) => {
+function renderQuickNav() {
+  els.quickNav.replaceChildren();
+
+  for (const category of orderedCategories()) {
+    const link = document.createElement("a");
+    link.className = "quick-link";
+    link.href = `#section-${slugify(category)}`;
+    link.textContent = formatCategory(category);
+    els.quickNav.appendChild(link);
+  }
+}
+
+function renderSections() {
+  const visible = filteredItems();
+  els.resultCount.textContent = `${visible.length} resultados`;
+  els.sections.replaceChildren();
+
+  if (!visible.length) {
+    const empty = document.createElement("article");
+    empty.className = "empty-state";
+    empty.innerHTML = "<strong>Sin resultados.</strong><p>Prueba otro término o vuelve a todas las ramas.</p>";
+    els.sections.appendChild(empty);
+    return;
+  }
+
+  for (const category of orderedCategories()) {
+    const items = visible
+      .filter((item) => item.category === category)
+      .sort((a, b) => COLLATOR.compare(a.title, b.title));
+
+    if (!items.length) continue;
+
+    const fragment = els.sectionTemplate.content.cloneNode(true);
+    const section = fragment.querySelector(".category-section");
+    const grid = fragment.querySelector(".section-grid");
+
+    section.id = `section-${slugify(category)}`;
+    fragment.querySelector(".section-kicker").textContent = "Rama";
+    fragment.querySelector(".section-title").textContent = formatCategory(category);
+    fragment.querySelector(".section-count").textContent = `${items.length} documentos`;
+
+    for (const item of items) {
+      grid.appendChild(buildCard(item));
+    }
+
+    els.sections.appendChild(fragment);
+  }
+}
+
+function buildCard(item) {
+  const fragment = els.cardTemplate.content.cloneNode(true);
+  const link = fragment.querySelector(".primary-link");
+  const readButton = fragment.querySelector(".read-button");
+  const url = buildAssetUrl(item.file);
+
+  fragment.querySelector(".card-category").textContent = formatCategory(item.category);
+  fragment.querySelector(".card-size").textContent = formatBytes(item.sizeBytes);
+  fragment.querySelector(".card-title").textContent = item.title;
+  fragment.querySelector(".card-path").textContent = item.file;
+
+  if (url) {
+    link.href = url;
+    link.setAttribute("download", "");
+    readButton.addEventListener("click", () => openViewer(item.title, url));
+  } else {
+    link.removeAttribute("href");
+    link.classList.add("is-disabled");
+    link.textContent = "Configurar R2";
+    readButton.disabled = true;
+  }
+
+  return fragment;
+}
+
+function filteredItems() {
+  return state.items.filter((item) => {
     const matchesCategory = state.category === "TODAS" || item.category === state.category;
     if (!matchesCategory) return false;
-
     if (!state.query) return true;
 
     const haystack = `${item.title} ${item.file} ${item.category}`.toLowerCase();
     return haystack.includes(state.query);
   });
+}
 
-  filtered.sort((a, b) => COLLATOR.compare(a.title, b.title));
-  els.resultCount.textContent = `${filtered.length} resultados`;
-  els.results.replaceChildren();
-
-  if (!filtered.length) {
-    const empty = document.createElement("article");
-    empty.className = "empty-state";
-    empty.innerHTML = "<strong>Sin resultados.</strong><p>Prueba otra búsqueda o vuelve a \"TODAS\".</p>";
-    els.results.appendChild(empty);
-    return;
-  }
-
-  for (const item of filtered) {
-    const fragment = els.template.content.cloneNode(true);
-    const url = buildAssetUrl(item.file);
-    const card = fragment.querySelector(".card");
-    const link = fragment.querySelector(".primary-link");
-    const copyButton = fragment.querySelector(".ghost-button");
-
-    fragment.querySelector(".card-category").textContent = item.category;
-    fragment.querySelector(".card-size").textContent = formatBytes(item.sizeBytes);
-    fragment.querySelector(".card-title").textContent = item.title;
-    fragment.querySelector(".card-path").textContent = item.file;
-
-    if (url) {
-      link.href = url;
-    } else {
-      link.removeAttribute("href");
-      link.classList.add("is-disabled");
-      link.textContent = "Configura URL base";
+function orderedCategories() {
+  const categories = [...new Set(state.items.map((item) => item.category))];
+  return categories.sort((a, b) => {
+    const ia = PRIORITY_CATEGORIES.indexOf(a);
+    const ib = PRIORITY_CATEGORIES.indexOf(b);
+    if (ia !== -1 || ib !== -1) {
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
     }
+    return COLLATOR.compare(a, b);
+  });
+}
 
-    copyButton.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(item.file);
-        copyButton.textContent = "Ruta copiada";
-        window.setTimeout(() => {
-          copyButton.textContent = "Copiar ruta";
-        }, 1200);
-      } catch {
-        copyButton.textContent = "No se pudo copiar";
-      }
-    });
-
-    els.results.appendChild(fragment);
-    card.dataset.file = item.file;
-  }
+function formatCategory(category) {
+  if (category === "TODAS") return "Todas";
+  return category;
 }
 
 function buildAssetUrl(file) {
-  if (!state.baseUrl) return "";
-  return `${normalizeBaseUrl(state.baseUrl)}/${encodePath(file)}`;
+  if (!ASSET_BASE_URL) return "";
+  return `${ASSET_BASE_URL}/${encodePath(file)}`;
 }
 
 function normalizeBaseUrl(value) {
@@ -141,8 +191,24 @@ function encodePath(path) {
 }
 
 function formatBytes(bytes) {
-  if (bytes < 1024 * 1024) {
-    return `${Math.round(bytes / 1024)} KB`;
-  }
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function slugify(value) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function openViewer(title, url) {
+  els.viewerTitle.textContent = title;
+  els.viewerOpen.href = url;
+  els.viewerFrame.src = url;
+  els.viewer.hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function closeViewer() {
+  els.viewer.hidden = true;
+  els.viewerFrame.src = "";
+  document.body.style.overflow = "";
 }
