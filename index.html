@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Biblioteca Scout Chilena Rescatada</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero">
+        <p class="eyebrow">Archivo digital</p>
+        <h1>Biblioteca Scout Chilena Rescatada</h1>
+        <p class="hero-copy">
+          Índice estático para navegar la colección, filtrar por rama y abrir cada PDF desde una URL base pública.
+        </p>
+        <div class="hero-grid">
+          <article class="hero-panel">
+            <p class="panel-label">URL base de archivos</p>
+            <label class="base-url-field" for="base-url">
+              <span>Ejemplo</span>
+              <input
+                id="base-url"
+                type="url"
+                spellcheck="false"
+                placeholder="https://tu-bucket.r2.dev/SCOUT"
+              >
+            </label>
+            <p class="panel-help">
+              El sitio arma los enlaces con la ruta de cada archivo. Si subes la carpeta `SCOUT` completa a R2 o Blob,
+              aquí va la URL pública de esa carpeta raíz.
+            </p>
+          </article>
+          <article class="hero-panel stats-panel">
+            <div>
+              <p class="panel-label">Estado</p>
+              <p class="stat-number" id="file-count">0</p>
+              <p class="stat-caption">PDFs inventariados</p>
+            </div>
+            <div>
+              <p class="panel-label">Corte</p>
+              <p class="stat-date" id="generated-at">-</p>
+              <p class="stat-caption">Fecha del inventario</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="controls">
+        <label class="search-field" for="search">
+          <span>Buscar</span>
+          <input id="search" type="search" placeholder="Título, carpeta o parte del nombre">
+        </label>
+        <div class="filters-header">
+          <div>
+            <p class="filters-title">Categorías</p>
+            <p class="filters-subtitle">Selecciona una rama o mira todo el fondo</p>
+          </div>
+          <p class="result-count" id="result-count">0 resultados</p>
+        </div>
+        <div class="category-chips" id="category-chips"></div>
+      </section>
+
+      <section class="results" id="results"></section>
+    </main>
+
+    <template id="card-template">
+      <article class="card">
+        <div class="card-head">
+          <p class="card-category"></p>
+          <p class="card-size"></p>
+        </div>
+        <h2 class="card-title"></h2>
+        <p class="card-path"></p>
+        <div class="card-actions">
+          <a class="primary-link" target="_blank" rel="noreferrer">Abrir PDF</a>
+          <button class="ghost-button" type="button">Copiar ruta</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="./app.js" defer></script>
+  </body>
+</html>
