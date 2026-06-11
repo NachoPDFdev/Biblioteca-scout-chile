@@ -10,16 +10,20 @@
     <link rel="stylesheet" href="./styles.css">
   </head>
   <body>
+    <a id="top"></a>
     <main class="page-shell">
       <section class="hero">
-        <p class="eyebrow">Biblioteca digital</p>
-        <h1>Biblioteca Scout Chilena Rescatada</h1>
-        <p class="hero-copy">
-          Descarga directa de libros y documentos scout, ordenados por rama y con navegación simple para uso diario.
-        </p>
+        <div class="hero-copywrap">
+          <p class="eyebrow">Biblioteca digital</p>
+          <h1>Biblioteca Scout Chilena Rescatada</h1>
+          <p class="hero-copy">
+            Una sala de lectura scout para descargar, leer y recorrer por rama sin perderte entre carpetas.
+          </p>
+        </div>
         <div class="hero-grid">
           <article class="hero-panel hero-panel-wide">
-            <p class="panel-label">Acceso rápido</p>
+            <p class="panel-label">Sala principal</p>
+            <p class="shelf-copy">Entradas rápidas a las ramas más usadas, pensadas para escritorio y celular.</p>
             <div class="quick-nav" id="quick-nav"></div>
           </article>
           <article class="hero-panel stats-panel">
@@ -57,6 +61,18 @@
 
       <section class="sections" id="sections"></section>
     </main>
+
+    <button class="back-to-top" id="back-to-top" type="button" aria-label="Volver arriba">
+      ↑ Arriba
+    </button>
+
+    <nav class="mobile-dock" aria-label="Accesos móviles">
+      <a href="#top" class="dock-link">Inicio</a>
+      <a href="#section-tropa" class="dock-link">Tropa</a>
+      <a href="#section-guias" class="dock-link">Guías</a>
+      <a href="#section-dirigentes" class="dock-link">Dirig.</a>
+      <a href="#section-ena" class="dock-link">ENA</a>
+    </nav>
 
     <template id="section-template">
       <section class="category-section">

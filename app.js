@@ -24,6 +24,7 @@ const els = {
   viewerTitle: document.querySelector("#viewer-title"),
   viewerOpen: document.querySelector("#viewer-open"),
   viewerClose: document.querySelector("#viewer-close"),
+  backToTop: document.querySelector("#back-to-top"),
 };
 
 const COLLATOR = new Intl.Collator("es", { sensitivity: "base" });
@@ -50,6 +51,14 @@ async function boot() {
   });
   els.viewerClose.addEventListener("click", closeViewer);
   els.viewerBackdrop.addEventListener("click", closeViewer);
+  els.backToTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !els.viewer.hidden) closeViewer();
+  });
+  window.addEventListener("scroll", syncScrollUi, { passive: true });
+  syncScrollUi();
 }
 
 function renderCategories() {
@@ -77,7 +86,7 @@ function renderQuickNav() {
     const link = document.createElement("a");
     link.className = "quick-link";
     link.href = `#section-${slugify(category)}`;
-    link.textContent = formatCategory(category);
+    link.innerHTML = `<span class="quick-link-kicker">Rama</span><strong>${formatCategory(category)}</strong>`;
     els.quickNav.appendChild(link);
   }
 }
@@ -211,4 +220,8 @@ function closeViewer() {
   els.viewer.hidden = true;
   els.viewerFrame.src = "";
   document.body.style.overflow = "";
+}
+
+function syncScrollUi() {
+  els.backToTop.classList.toggle("is-visible", window.scrollY > 420);
 }
