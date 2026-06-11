@@ -29,6 +29,32 @@ const els = {
 
 const COLLATOR = new Intl.Collator("es", { sensitivity: "base" });
 const PRIORITY_CATEGORIES = ["TROPA", "GUIAS", "DIRIGENTES", "ENA", "MANADA", "HADITAS"];
+const DISPLAY_TITLE_OVERRIDES = {
+  "DIRIGENTES/Mejores-Dirigentes-OK.pdf": "Más Preparados Mejores Dirigentes",
+  "POR/01-Estatuto.pdf": "Libro I Estatuto",
+  "POR/02-Organizacion.pdf": "Libro II de la Organización",
+  "POR/03-Himno-Institucional.pdf": "Libro III Reglamentos Himno Institucional",
+  "POR/04-Reglamento-Convocatorias.pdf": "Libro III Reglamento de Convocatorias",
+  "POR/05-Procedimientos-Administrativos.pdf": "Libro III Reglamento de Procedimientos Administrativos",
+  "POR/06-Politicas-Religiosas.pdf": "Libro III Reglamento de Políticas Religiosas",
+  "POR/07-Programa-Formacion.pdf": "Libro III Reglamento del Programa de Formación",
+  "POR/08-Reglamento-Disciplinario.pdf": "Libro III Reglamento Disciplinario",
+  "POR/09-Reglamento-Ceremonias.pdf": "Libro III Reglamento de Ceremonias y Protocolo",
+  "POR/10-Reglamento-Condecoraciones.pdf": "Libro III Reglamento de Condecoraciones",
+  "POR/12-Reglamento-Uniformes.pdf": "Libro III Reglamento de Uniformes, Insignias y Distintivos",
+  "POR/13-Manual-de-Uniformes-Insignias-Distintivos-y-Banderas.pdf": "Libro III Manual de Uniformes, Insignias, Distintivos y Banderas",
+  "POR/14-Manual-de-Insgnias.pdf": "Libro III Manual de Insignias",
+  "POR/15-Manual-de-Distintivos.pdf": "Libro III Manual de Distintivos",
+  "POR/16-Manual-de-Banderas-1.pdf": "Libro III Manual de Banderas",
+  "POR/21-Manual-Sesiones-Corte.pdf": "Libro III Manual de Sesiones de la Corte Nacional de Honor",
+  "POR/Manual-Directorio-1.pdf": "Libro III Manual de Procedimientos Internos del Directorio Nacional",
+  "POR/Manual-de-Procedimientos-Internos-Corte.pdf": "Libro III Manual de Procedimientos Internos de la Corte Nacional de Honor",
+  "POR/Manual-de-Procedimientos-Internos-del-ENA-1.pdf": "Libro III Manual de Procedimientos Internos ENA",
+  "POR/Manual-Condecoraciones.pdf": "Libro III Manual de Condecoraciones",
+  "POR/01-Procedimiento-Administrativo-Ingreso-de-Grupos.pdf": "Libro III Procedimiento Administrativo Ingreso de Grupos",
+  "LITERATURA GENERAL/Escultismo-y-Sindrome-de-Down-Nicolas-Quezada-Concha.pdf": "Escultismo y Síndrome de Down (Escultismo de Extensión)",
+  "LITERATURA GENERAL/mas-alla-del-metodo-scout-nicolas-quezada-concha.pdf": "Más Allá del Método Scout (Escultismo de Extensión)"
+};
 
 boot();
 
@@ -107,7 +133,7 @@ function renderSections() {
   for (const category of orderedCategories()) {
     const items = visible
       .filter((item) => item.category === category)
-      .sort((a, b) => COLLATOR.compare(a.title, b.title));
+      .sort((a, b) => COLLATOR.compare(displayTitle(a), displayTitle(b)));
 
     if (!items.length) continue;
 
@@ -136,13 +162,13 @@ function buildCard(item) {
 
   fragment.querySelector(".card-category").textContent = formatCategory(item.category);
   fragment.querySelector(".card-size").textContent = formatBytes(item.sizeBytes);
-  fragment.querySelector(".card-title").textContent = item.title;
+  fragment.querySelector(".card-title").textContent = displayTitle(item);
   fragment.querySelector(".card-path").textContent = item.file;
 
   if (url) {
     link.href = url;
     link.setAttribute("download", "");
-    readButton.addEventListener("click", () => openViewer(item.title, url));
+    readButton.addEventListener("click", () => openViewer(displayTitle(item), url));
   } else {
     link.removeAttribute("href");
     link.classList.add("is-disabled");
@@ -159,7 +185,7 @@ function filteredItems() {
     if (!matchesCategory) return false;
     if (!state.query) return true;
 
-    const haystack = `${item.title} ${item.file} ${item.category}`.toLowerCase();
+    const haystack = `${displayTitle(item)} ${item.title} ${item.file} ${item.category}`.toLowerCase();
     return haystack.includes(state.query);
   });
 }
@@ -224,4 +250,8 @@ function closeViewer() {
 
 function syncScrollUi() {
   els.backToTop.classList.toggle("is-visible", window.scrollY > 420);
+}
+
+function displayTitle(item) {
+  return DISPLAY_TITLE_OVERRIDES[item.file] || item.title;
 }
