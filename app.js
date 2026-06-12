@@ -174,16 +174,8 @@ function renderCategories() {
 function renderQuickNav() {
   els.quickNav.replaceChildren();
 
-  addQuickLink("documentos", "Documentos", "Biblioteca PDF");
-  addQuickLink("material-grafico", "Material gráfico", "Logos e insignias");
-
-  for (const category of orderedDocumentCategories()) {
-    addQuickLink(`docs-${slugify(category)}`, formatCategory(category), "Rama");
-  }
-
-  for (const category of orderedGraphicCategories()) {
-    addQuickLink(`graphics-${slugify(category)}`, formatCategory(category), "Gráfico");
-  }
+  addQuickLink("documentos", "Documentos", "PDF");
+  addQuickLink("material-grafico", "Material gráfico", "PNG y logos");
 }
 
 function addQuickLink(anchor, title, kicker) {
@@ -286,6 +278,9 @@ function buildCard(item) {
   fragment.querySelector(".card-path").textContent = item.file;
 
   meta.textContent = item.section === "graphics" ? "Vista previa disponible" : "Documento listo para lectura";
+  if (item.section !== "graphics") {
+    fragment.querySelector(".card-path").hidden = true;
+  }
 
   if (item.kind === "image" && url) {
     const img = document.createElement("img");

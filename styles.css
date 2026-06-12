@@ -111,40 +111,29 @@ body {
   line-height: 1.55;
 }
 
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1.7fr 1fr;
-  gap: 18px;
-  margin-top: 28px;
-}
-
-.hero-panel {
-  padding: 22px;
-  border-radius: 22px;
-  background: var(--paper-strong);
-  border: 1px solid var(--line);
-}
-
-.hero-panel-wide {
-  display: grid;
-  gap: 16px;
-}
-
-.stats-panel {
-  display: grid;
-  gap: 24px;
-  align-content: start;
-}
-
-.stat-split {
-  display: grid;
-  gap: 6px;
-}
-
-.quick-nav {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+.hero-actions {
+  display: flex;
   gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 26px;
+}
+
+.hero-summary {
+  display: flex;
+  gap: 16px 22px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  color: var(--muted);
+}
+
+.hero-summary p {
+  margin: 0;
+}
+
+.hero-summary strong {
+  color: var(--ink);
+  font-family: "Fraunces", serif;
+  font-size: 1.3rem;
 }
 
 .quick-link,
@@ -172,24 +161,20 @@ body {
 }
 
 .quick-link {
-  min-height: 88px;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
-  gap: 4px;
-  border-radius: 22px;
-  padding: 16px;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 0 18px;
   background:
     linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,255,255,0.98)),
     var(--paper-deep);
 }
 
 .quick-link strong {
-  font-size: 1.05rem;
+  font-size: 0.98rem;
 }
 
 .quick-link-kicker {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--accent);
@@ -219,9 +204,6 @@ body {
 
 .controls {
   margin-top: 22px;
-  position: sticky;
-  top: 12px;
-  z-index: 12;
 }
 
 .search-field {
@@ -259,7 +241,7 @@ input:focus {
 }
 
 .filters-header {
-  margin-top: 20px;
+  margin-top: 18px;
 }
 
 .result-count,
@@ -350,9 +332,9 @@ input:focus {
 
 .card {
   display: grid;
-  gap: 14px;
-  padding: 20px;
-  min-height: 320px;
+  gap: 12px;
+  padding: 18px;
+  min-height: 292px;
   background: var(--paper-strong);
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -567,14 +549,6 @@ input:focus {
     grid-template-columns: 1fr;
   }
 
-  .controls {
-    position: static;
-  }
-
-  .quick-nav {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .mobile-dock {
     position: fixed;
     left: 10px;
@@ -582,7 +556,7 @@ input:focus {
     bottom: 12px;
     z-index: 35;
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 8px;
     padding: 8px;
     border: 1px solid var(--line);

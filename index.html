@@ -17,32 +17,15 @@
           <p class="eyebrow">Biblioteca digital</p>
           <h1>Biblioteca Scout Chilena Rescatada</h1>
           <p class="hero-copy">
-            Una sala de lectura scout para recorrer documentos, insignias y material gráfico sin perderte entre carpetas.
+            Documentos por rama y material gráfico en un solo lugar.
           </p>
         </div>
-        <div class="hero-grid">
-          <article class="hero-panel hero-panel-wide">
-            <p class="panel-label">Sala principal</p>
-            <p class="shelf-copy">Entradas rápidas a documentos y colecciones visuales, pensadas para escritorio y celular.</p>
-            <div class="quick-nav" id="quick-nav"></div>
-          </article>
-          <article class="hero-panel stats-panel">
-            <div>
-              <p class="panel-label">Colección total</p>
-              <p class="stat-number" id="file-count">0</p>
-              <p class="stat-caption">archivos visibles</p>
-            </div>
-            <div>
-              <p class="panel-label">Inventario</p>
-              <p class="stat-date" id="generated-at">-</p>
-              <p class="stat-caption">Fecha de corte</p>
-            </div>
-            <div class="stat-split">
-              <p class="panel-label">Detalle</p>
-              <p class="stat-caption" id="document-count">0 documentos</p>
-              <p class="stat-caption" id="graphic-count">0 recursos gráficos</p>
-            </div>
-          </article>
+        <div class="hero-actions" id="quick-nav"></div>
+        <div class="hero-summary">
+          <p><strong id="file-count">0</strong> archivos</p>
+          <p><span id="document-count">0 documentos</span></p>
+          <p><span id="graphic-count">0 recursos gráficos</span></p>
+          <p>Actualizado <span id="generated-at">-</span></p>
         </div>
       </section>
 
@@ -54,7 +37,7 @@
         <div class="filters-header">
           <div>
             <p class="filters-title">Colecciones</p>
-            <p class="filters-subtitle">Filtra por categoría y separa documentos de material gráfico</p>
+            <p class="filters-subtitle">Filtra solo si lo necesitas.</p>
           </div>
           <p class="result-count" id="result-count">0 resultados</p>
         </div>
@@ -79,8 +62,7 @@
       <a href="#top" class="dock-link">Inicio</a>
       <a href="#documentos" class="dock-link">Docs</a>
       <a href="#material-grafico" class="dock-link">Gráfico</a>
-      <a href="#docs-dirigentes" class="dock-link">Dirig.</a>
-      <a href="#graphics-insignias" class="dock-link">Insig.</a>
+      <a href="#search" class="dock-link">Buscar</a>
     </nav>
 
     <template id="section-template">
