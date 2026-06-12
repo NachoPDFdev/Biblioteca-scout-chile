@@ -68,6 +68,13 @@
           <p class="result-count" id="result-count">0 resultados</p>
         </div>
         <div class="category-chips" id="category-chips"></div>
+        <div class="active-context" id="active-context" hidden>
+          <div>
+            <p class="active-context-label">Vista actual</p>
+            <p class="active-context-title" id="active-context-title">Toda la biblioteca</p>
+          </div>
+          <button class="ghost-button" id="clear-category" type="button">Limpiar filtro</button>
+        </div>
         <p class="config-warning" id="config-warning" hidden>
           Falta configurar la URL base de R2 en <code>config.js</code>.
         </p>
@@ -91,11 +98,11 @@
       ↑ Arriba
     </button>
 
-    <nav class="mobile-dock" aria-label="Accesos móviles">
-      <a href="#top" class="dock-link">Inicio</a>
-      <a href="#documentos" class="dock-link">Docs</a>
-      <a href="/material-grafico" class="dock-link">Gráfico</a>
-      <a href="#search" class="dock-link">Buscar</a>
+    <nav class="mobile-dock" id="mobile-dock" aria-label="Accesos móviles">
+      <button class="dock-link" data-dock-action="home" type="button">Inicio</button>
+      <button class="dock-link" data-dock-action="search" type="button">Buscar</button>
+      <button class="dock-link" data-dock-action="categories" type="button">Ramas</button>
+      <button class="dock-link" data-dock-action="back" type="button">Atrás</button>
     </nav>
 
     <template id="section-template">
