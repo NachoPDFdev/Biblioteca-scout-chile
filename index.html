@@ -17,25 +17,30 @@
           <p class="eyebrow">Biblioteca digital</p>
           <h1>Biblioteca Scout Chilena Rescatada</h1>
           <p class="hero-copy">
-            Una sala de lectura scout para descargar, leer y recorrer por rama sin perderte entre carpetas.
+            Una sala de lectura scout para recorrer documentos, insignias y material gráfico sin perderte entre carpetas.
           </p>
         </div>
         <div class="hero-grid">
           <article class="hero-panel hero-panel-wide">
             <p class="panel-label">Sala principal</p>
-            <p class="shelf-copy">Entradas rápidas a las ramas más usadas, pensadas para escritorio y celular.</p>
+            <p class="shelf-copy">Entradas rápidas a documentos y colecciones visuales, pensadas para escritorio y celular.</p>
             <div class="quick-nav" id="quick-nav"></div>
           </article>
           <article class="hero-panel stats-panel">
             <div>
-              <p class="panel-label">Colección</p>
+              <p class="panel-label">Colección total</p>
               <p class="stat-number" id="file-count">0</p>
-              <p class="stat-caption">PDFs listados</p>
+              <p class="stat-caption">archivos visibles</p>
             </div>
             <div>
               <p class="panel-label">Inventario</p>
               <p class="stat-date" id="generated-at">-</p>
               <p class="stat-caption">Fecha de corte</p>
+            </div>
+            <div class="stat-split">
+              <p class="panel-label">Detalle</p>
+              <p class="stat-caption" id="document-count">0 documentos</p>
+              <p class="stat-caption" id="graphic-count">0 recursos gráficos</p>
             </div>
           </article>
         </div>
@@ -48,8 +53,8 @@
         </label>
         <div class="filters-header">
           <div>
-            <p class="filters-title">Ramas</p>
-            <p class="filters-subtitle">Filtra por categoría o recorre la biblioteca por secciones</p>
+            <p class="filters-title">Colecciones</p>
+            <p class="filters-subtitle">Filtra por categoría y separa documentos de material gráfico</p>
           </div>
           <p class="result-count" id="result-count">0 resultados</p>
         </div>
@@ -57,9 +62,13 @@
         <p class="config-warning" id="config-warning" hidden>
           Falta configurar la URL base de R2 en <code>config.js</code>.
         </p>
+        <p class="config-warning" id="source-notice" hidden>
+          La API dinámica no respondió y se cargó el inventario estático del repositorio.
+        </p>
       </section>
 
-      <section class="sections" id="sections"></section>
+      <section class="sections" id="document-sections"></section>
+      <section class="sections" id="graphic-sections"></section>
     </main>
 
     <button class="back-to-top" id="back-to-top" type="button" aria-label="Volver arriba">
@@ -68,10 +77,10 @@
 
     <nav class="mobile-dock" aria-label="Accesos móviles">
       <a href="#top" class="dock-link">Inicio</a>
-      <a href="#section-tropa" class="dock-link">Tropa</a>
-      <a href="#section-guias" class="dock-link">Guías</a>
-      <a href="#section-dirigentes" class="dock-link">Dirig.</a>
-      <a href="#section-ena" class="dock-link">ENA</a>
+      <a href="#documentos" class="dock-link">Docs</a>
+      <a href="#material-grafico" class="dock-link">Gráfico</a>
+      <a href="#docs-dirigentes" class="dock-link">Dirig.</a>
+      <a href="#graphics-insignias" class="dock-link">Insig.</a>
     </nav>
 
     <template id="section-template">
@@ -89,14 +98,16 @@
 
     <template id="card-template">
       <article class="card">
+        <div class="card-preview"></div>
         <div class="card-head">
           <p class="card-category"></p>
           <p class="card-size"></p>
         </div>
         <h3 class="card-title"></h3>
+        <p class="card-meta"></p>
         <p class="card-path"></p>
         <div class="card-actions">
-          <button class="ghost-button read-button" type="button">Leer aquí</button>
+          <button class="ghost-button read-button" type="button">Abrir</button>
           <a class="primary-link" target="_blank" rel="noreferrer">Descargar PDF</a>
         </div>
       </article>

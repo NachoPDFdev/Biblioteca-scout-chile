@@ -1,59 +1,73 @@
 # Biblioteca Scout Chilena Rescatada
 
-Sitio estático para publicar el inventario de la carpeta `SCOUT` y descargar cada PDF desde una URL pública de R2.
+Sitio para publicar la carpeta `SCOUT` desde Cloudflare R2, separando documentos PDF y material gráfico como insignias, logos e imágenes.
 
 ## Estructura
 
 - `index.html`: interfaz principal
 - `styles.css`: estilos
-- `app.js`: buscador, filtros y armado de links
+- `app.js`: buscador, filtros, secciones y tarjetas visuales
 - `config.js`: URL pública fija del storage
-- `inventory.json`: inventario generado desde la carpeta local
+- `api/inventory.js`: lista R2 en tiempo real desde Vercel
+- `inventory.json`: fallback estático si la API no responde
 - `generate_inventory.py`: regenera `inventory.json` desde una carpeta fuente
 
-## Regenerar inventario
+## Despliegue recomendado
+
+La web ahora intenta cargar primero `./api/inventory`. Si la API de Vercel tiene credenciales R2 válidas:
+
+- los archivos nuevos en R2 aparecen sin regenerar `inventory.json`
+- `Documentos` y `Material gráfico` se separan automáticamente
+- las imágenes muestran vista previa
+
+Si la API falla, la web usa `inventory.json` como respaldo.
+
+## Variables de entorno en Vercel
+
+Configura estas variables en el proyecto:
+
+- `R2_ACCOUNT_ID`
+- `R2_ACCESS_KEY_ID`
+- `R2_SECRET_ACCESS_KEY`
+- `R2_BUCKET_NAME`
+- `R2_PREFIX`
+
+Ejemplo:
+
+- `R2_BUCKET_NAME=biblioteca-scout-chile`
+- `R2_PREFIX=SCOUT`
+
+## URL pública de lectura
+
+`config.js` debe apuntar a la base pública del bucket bajo la carpeta `SCOUT`.
+
+Ejemplo:
+
+`https://pub-15f0e572a1844899ade258a6cac7e7b9.r2.dev/SCOUT`
+
+## Regenerar inventario manualmente
 
 ```bash
 python3 generate_inventory.py "/mnt/c/Users/Usuario/Downloads/SCOUT" "./inventory.json"
 ```
 
-## Configuracion previa
+El script ahora incluye:
 
-Edita `config.js` y cambia:
+- PDFs
+- PNG
+- JPG / JPEG
+- WEBP
+- SVG
+- GIF
+- AVIF
 
-`https://REEMPLAZAR-CON-TU-URL-PUBLICA/SCOUT`
+## Estructura sugerida en R2
 
-por la URL real publica de tu bucket o dominio R2.
-
-Ejemplo:
-
-`https://archivos.leviatanwow.com/SCOUT`
-
-## Cómo publicarlo en Vercel
-
-1. Sube los PDFs a un storage público.
-2. Mantén la estructura de carpetas:
-   - `DIRIGENTES/...`
-   - `GUIAS/...`
-   - `TROPA/...`
-   - etc.
-3. Edita `config.js` con tu URL pública real.
-4. Sube esta carpeta a Vercel como proyecto estático.
-
-## Flujo recomendado con Cloudflare R2 + Vercel
-
-1. En R2, sube la carpeta `SCOUT` completa.
-2. Verifica que el bucket o dominio público permita abrir archivos con URLs como:
-   - `https://tu-dominio-r2/SCOUT/GUIAS/archivo.pdf`
-3. Sube esta carpeta `scout-biblioteca` a GitHub.
-4. En Vercel:
-   - `Add New...`
-   - `Project`
-   - importa el repositorio
-   - framework: `Other`
-   - root directory: `.` si el repo contiene solo este proyecto
-5. Haz deploy.
-6. Abre la web desplegada y prueba que los botones `Descargar PDF` abran archivos reales.
+- `SCOUT/DIRIGENTES/...pdf`
+- `SCOUT/GUIAS/...pdf`
+- `SCOUT/TROPA/...pdf`
+- `SCOUT/MATERIAL GRAFICO/INSIGNIAS/...png`
+- `SCOUT/MATERIAL GRAFICO/LOGOS/...png`
 
 ## Si el repo contiene más cosas
 

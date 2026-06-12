@@ -1,34 +1,10 @@
 const CONFIG = window.SCOUT_LIBRARY_CONFIG || {};
 const ASSET_BASE_URL = normalizeBaseUrl(CONFIG.assetBaseUrl || "");
 
-const state = {
-  items: [],
-  query: "",
-  category: "TODAS",
-};
-
-const els = {
-  search: document.querySelector("#search"),
-  categoryChips: document.querySelector("#category-chips"),
-  quickNav: document.querySelector("#quick-nav"),
-  sections: document.querySelector("#sections"),
-  resultCount: document.querySelector("#result-count"),
-  fileCount: document.querySelector("#file-count"),
-  generatedAt: document.querySelector("#generated-at"),
-  configWarning: document.querySelector("#config-warning"),
-  sectionTemplate: document.querySelector("#section-template"),
-  cardTemplate: document.querySelector("#card-template"),
-  viewer: document.querySelector("#viewer"),
-  viewerBackdrop: document.querySelector("#viewer-backdrop"),
-  viewerFrame: document.querySelector("#viewer-frame"),
-  viewerTitle: document.querySelector("#viewer-title"),
-  viewerOpen: document.querySelector("#viewer-open"),
-  viewerClose: document.querySelector("#viewer-close"),
-  backToTop: document.querySelector("#back-to-top"),
-};
-
-const COLLATOR = new Intl.Collator("es", { sensitivity: "base" });
-const PRIORITY_CATEGORIES = ["TROPA", "GUIAS", "DIRIGENTES", "ENA", "MANADA", "HADITAS"];
+const LEGACY_GRAPHIC_PREFIX = "MATERIAL GRAFICO";
+const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp", "svg", "gif", "avif"]);
+const PRIORITY_DOCUMENT_CATEGORIES = ["TROPA", "GUIAS", "DIRIGENTES", "ENA", "MANADA", "HADITAS"];
+const PRIORITY_GRAPHIC_CATEGORIES = ["INSIGNIAS", "LOGOS"];
 const DISPLAY_TITLE_OVERRIDES = {
   "DIRIGENTES/Mejores-Dirigentes-OK.pdf": "Más Preparados Mejores Dirigentes",
   "POR/01-Estatuto.pdf": "Libro I Estatuto",
@@ -56,16 +32,54 @@ const DISPLAY_TITLE_OVERRIDES = {
   "LITERATURA GENERAL/mas-alla-del-metodo-scout-nicolas-quezada-concha.pdf": "Más Allá del Método Scout (Escultismo de Extensión)"
 };
 
+const COLLATOR = new Intl.Collator("es", { sensitivity: "base" });
+
+const state = {
+  items: [],
+  query: "",
+  category: "TODAS",
+  source: "static",
+};
+
+const els = {
+  search: document.querySelector("#search"),
+  categoryChips: document.querySelector("#category-chips"),
+  quickNav: document.querySelector("#quick-nav"),
+  resultCount: document.querySelector("#result-count"),
+  fileCount: document.querySelector("#file-count"),
+  generatedAt: document.querySelector("#generated-at"),
+  documentCount: document.querySelector("#document-count"),
+  graphicCount: document.querySelector("#graphic-count"),
+  configWarning: document.querySelector("#config-warning"),
+  sourceNotice: document.querySelector("#source-notice"),
+  documentSections: document.querySelector("#document-sections"),
+  graphicSections: document.querySelector("#graphic-sections"),
+  sectionTemplate: document.querySelector("#section-template"),
+  cardTemplate: document.querySelector("#card-template"),
+  viewer: document.querySelector("#viewer"),
+  viewerBackdrop: document.querySelector("#viewer-backdrop"),
+  viewerFrame: document.querySelector("#viewer-frame"),
+  viewerTitle: document.querySelector("#viewer-title"),
+  viewerOpen: document.querySelector("#viewer-open"),
+  viewerClose: document.querySelector("#viewer-close"),
+  backToTop: document.querySelector("#back-to-top"),
+};
+
 boot();
 
 async function boot() {
-  const response = await fetch("./inventory.json");
-  const data = await response.json();
-  state.items = data.items;
+  const data = await loadInventory();
+  const normalized = normalizeInventory(data);
 
-  els.fileCount.textContent = String(data.fileCount);
-  els.generatedAt.textContent = data.generatedAt;
+  state.items = normalized.items;
+  state.source = normalized.source || "static";
+
+  els.fileCount.textContent = String(normalized.fileCount);
+  els.generatedAt.textContent = normalized.generatedAt || "-";
+  els.documentCount.textContent = `${normalized.documentCount} documentos`;
+  els.graphicCount.textContent = `${normalized.graphicCount} recursos gráficos`;
   els.configWarning.hidden = Boolean(ASSET_BASE_URL);
+  els.sourceNotice.hidden = state.source !== "static";
 
   renderCategories();
   renderQuickNav();
@@ -85,6 +99,58 @@ async function boot() {
   });
   window.addEventListener("scroll", syncScrollUi, { passive: true });
   syncScrollUi();
+}
+
+async function loadInventory() {
+  try {
+    const response = await fetch("./api/inventory");
+    if (!response.ok) throw new Error(`API ${response.status}`);
+    return await response.json();
+  } catch (error) {
+    const response = await fetch("./inventory.json");
+    const data = await response.json();
+    return { ...data, source: "static" };
+  }
+}
+
+function normalizeInventory(data) {
+  const items = (data.items || []).map(normalizeItem).filter(Boolean);
+  const documentCount = items.filter((item) => item.section === "documents").length;
+  const graphicCount = items.filter((item) => item.section === "graphics").length;
+
+  return {
+    generatedAt: data.generatedAt || "-",
+    source: data.source || "static",
+    items,
+    fileCount: items.length,
+    documentCount,
+    graphicCount,
+  };
+}
+
+function normalizeItem(item) {
+  if (!item || !item.file) return null;
+
+  const file = String(item.file);
+  const extension = getExtension(file);
+  const parts = file.split("/").filter(Boolean);
+  const topLevel = item.collection || parts[0] || "GENERAL";
+  const isGraphicSection = String(topLevel).toUpperCase() === LEGACY_GRAPHIC_PREFIX;
+  const isImage = item.kind === "image" || IMAGE_EXTENSIONS.has(extension);
+  const section = item.section || (isGraphicSection || isImage ? "graphics" : "documents");
+  const category = item.category || (section === "graphics" ? parts[1] || "GENERAL" : parts[0] || "GENERAL");
+
+  return {
+    title: item.title || humanTitleFromFile(file),
+    file,
+    category,
+    collection: topLevel,
+    section,
+    kind: item.kind || (section === "graphics" ? "image" : "document"),
+    extension,
+    sizeBytes: Number(item.sizeBytes || 0),
+    updatedAt: item.updatedAt || "",
+  };
 }
 
 function renderCategories() {
@@ -108,72 +174,147 @@ function renderCategories() {
 function renderQuickNav() {
   els.quickNav.replaceChildren();
 
-  for (const category of orderedCategories()) {
-    const link = document.createElement("a");
-    link.className = "quick-link";
-    link.href = `#section-${slugify(category)}`;
-    link.innerHTML = `<span class="quick-link-kicker">Rama</span><strong>${formatCategory(category)}</strong>`;
-    els.quickNav.appendChild(link);
+  addQuickLink("documentos", "Documentos", "Biblioteca PDF");
+  addQuickLink("material-grafico", "Material gráfico", "Logos e insignias");
+
+  for (const category of orderedDocumentCategories()) {
+    addQuickLink(`docs-${slugify(category)}`, formatCategory(category), "Rama");
   }
+
+  for (const category of orderedGraphicCategories()) {
+    addQuickLink(`graphics-${slugify(category)}`, formatCategory(category), "Gráfico");
+  }
+}
+
+function addQuickLink(anchor, title, kicker) {
+  const link = document.createElement("a");
+  link.className = "quick-link";
+  link.href = `#${anchor}`;
+  link.innerHTML = `<span class="quick-link-kicker">${kicker}</span><strong>${title}</strong>`;
+  els.quickNav.appendChild(link);
 }
 
 function renderSections() {
   const visible = filteredItems();
-  els.resultCount.textContent = `${visible.length} resultados`;
-  els.sections.replaceChildren();
+  const visibleDocuments = visible.filter((item) => item.section === "documents");
+  const visibleGraphics = visible.filter((item) => item.section === "graphics");
 
-  if (!visible.length) {
+  els.resultCount.textContent = `${visible.length} resultados`;
+  els.documentSections.replaceChildren();
+  els.graphicSections.replaceChildren();
+
+  renderSectionGroup({
+    container: els.documentSections,
+    sectionIdPrefix: "docs",
+    anchorId: "documentos",
+    title: "Documentos",
+    kicker: "Biblioteca PDF",
+    emptyCopy: "No hay documentos para este filtro.",
+    categories: orderedDocumentCategories(),
+    items: visibleDocuments,
+  });
+
+  renderSectionGroup({
+    container: els.graphicSections,
+    sectionIdPrefix: "graphics",
+    anchorId: "material-grafico",
+    title: "Material gráfico",
+    kicker: "Logos, insignias y recursos visuales",
+    emptyCopy: "No hay recursos gráficos para este filtro.",
+    categories: orderedGraphicCategories(),
+    items: visibleGraphics,
+  });
+}
+
+function renderSectionGroup({ container, sectionIdPrefix, anchorId, title, kicker, emptyCopy, categories, items }) {
+  const wrapper = document.createElement("section");
+  wrapper.className = "library-group";
+  wrapper.id = anchorId;
+
+  const head = document.createElement("div");
+  head.className = "library-group-head";
+  head.innerHTML = `<p class="section-kicker">${kicker}</p><h2 class="library-group-title">${title}</h2>`;
+  wrapper.appendChild(head);
+
+  if (!items.length) {
     const empty = document.createElement("article");
     empty.className = "empty-state";
-    empty.innerHTML = "<strong>Sin resultados.</strong><p>Prueba otro término o vuelve a todas las ramas.</p>";
-    els.sections.appendChild(empty);
+    empty.innerHTML = `<strong>Sin resultados.</strong><p>${emptyCopy}</p>`;
+    wrapper.appendChild(empty);
+    container.appendChild(wrapper);
     return;
   }
 
-  for (const category of orderedCategories()) {
-    const items = visible
+  for (const category of categories) {
+    const sectionItems = items
       .filter((item) => item.category === category)
       .sort((a, b) => COLLATOR.compare(displayTitle(a), displayTitle(b)));
 
-    if (!items.length) continue;
+    if (!sectionItems.length) continue;
 
     const fragment = els.sectionTemplate.content.cloneNode(true);
     const section = fragment.querySelector(".category-section");
     const grid = fragment.querySelector(".section-grid");
 
-    section.id = `section-${slugify(category)}`;
-    fragment.querySelector(".section-kicker").textContent = "Rama";
+    section.id = `${sectionIdPrefix}-${slugify(category)}`;
+    fragment.querySelector(".section-kicker").textContent = sectionIdPrefix === "graphics" ? "Colección" : "Rama";
     fragment.querySelector(".section-title").textContent = formatCategory(category);
-    fragment.querySelector(".section-count").textContent = `${items.length} documentos`;
+    fragment.querySelector(".section-count").textContent = `${sectionItems.length} archivos`;
 
-    for (const item of items) {
+    for (const item of sectionItems) {
       grid.appendChild(buildCard(item));
     }
 
-    els.sections.appendChild(fragment);
+    wrapper.appendChild(fragment);
   }
+
+  container.appendChild(wrapper);
 }
 
 function buildCard(item) {
   const fragment = els.cardTemplate.content.cloneNode(true);
+  const preview = fragment.querySelector(".card-preview");
   const link = fragment.querySelector(".primary-link");
-  const readButton = fragment.querySelector(".read-button");
+  const inspectButton = fragment.querySelector(".ghost-button");
+  const meta = fragment.querySelector(".card-meta");
   const url = buildAssetUrl(item.file);
+  const title = displayTitle(item);
 
   fragment.querySelector(".card-category").textContent = formatCategory(item.category);
-  fragment.querySelector(".card-size").textContent = formatBytes(item.sizeBytes);
-  fragment.querySelector(".card-title").textContent = displayTitle(item);
+  fragment.querySelector(".card-size").textContent = [formatBytes(item.sizeBytes), item.extension.toUpperCase()].filter(Boolean).join(" · ");
+  fragment.querySelector(".card-title").textContent = title;
   fragment.querySelector(".card-path").textContent = item.file;
+
+  meta.textContent = item.section === "graphics" ? "Vista previa disponible" : "Documento listo para lectura";
+
+  if (item.kind === "image" && url) {
+    const img = document.createElement("img");
+    img.className = "card-thumb";
+    img.src = url;
+    img.alt = title;
+    img.loading = "lazy";
+    preview.appendChild(img);
+  } else {
+    preview.innerHTML = `
+      <div class="card-poster">
+        <span class="card-poster-badge">${item.extension.toUpperCase()}</span>
+        <strong>${posterLabel(item)}</strong>
+        <p>${item.section === "graphics" ? "Recurso visual" : "Biblioteca Scout"}</p>
+      </div>
+    `;
+  }
 
   if (url) {
     link.href = url;
+    link.textContent = item.kind === "image" ? "Descargar imagen" : "Descargar PDF";
     link.setAttribute("download", "");
-    readButton.addEventListener("click", () => openViewer(displayTitle(item), url));
+    inspectButton.textContent = item.kind === "image" ? "Ver imagen" : "Leer aquí";
+    inspectButton.addEventListener("click", () => openViewer(title, url));
   } else {
     link.removeAttribute("href");
     link.classList.add("is-disabled");
     link.textContent = "Configurar R2";
-    readButton.disabled = true;
+    inspectButton.disabled = true;
   }
 
   return fragment;
@@ -185,16 +326,35 @@ function filteredItems() {
     if (!matchesCategory) return false;
     if (!state.query) return true;
 
-    const haystack = `${displayTitle(item)} ${item.title} ${item.file} ${item.category}`.toLowerCase();
+    const haystack = `${displayTitle(item)} ${item.title} ${item.file} ${item.category} ${item.collection}`.toLowerCase();
     return haystack.includes(state.query);
   });
 }
 
 function orderedCategories() {
-  const categories = [...new Set(state.items.map((item) => item.category))];
+  return [...orderedDocumentCategories(), ...orderedGraphicCategories()].filter(
+    (value, index, array) => array.indexOf(value) === index
+  );
+}
+
+function orderedDocumentCategories() {
+  return orderedByPriority(
+    [...new Set(state.items.filter((item) => item.section === "documents").map((item) => item.category))],
+    PRIORITY_DOCUMENT_CATEGORIES
+  );
+}
+
+function orderedGraphicCategories() {
+  return orderedByPriority(
+    [...new Set(state.items.filter((item) => item.section === "graphics").map((item) => item.category))],
+    PRIORITY_GRAPHIC_CATEGORIES
+  );
+}
+
+function orderedByPriority(categories, priorityList) {
   return categories.sort((a, b) => {
-    const ia = PRIORITY_CATEGORIES.indexOf(a);
-    const ib = PRIORITY_CATEGORIES.indexOf(b);
+    const ia = priorityList.indexOf(a);
+    const ib = priorityList.indexOf(b);
     if (ia !== -1 || ib !== -1) {
       if (ia === -1) return 1;
       if (ib === -1) return -1;
@@ -226,7 +386,8 @@ function encodePath(path) {
 }
 
 function formatBytes(bytes) {
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  if (!bytes) return "Peso no disponible";
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
@@ -254,4 +415,23 @@ function syncScrollUi() {
 
 function displayTitle(item) {
   return DISPLAY_TITLE_OVERRIDES[item.file] || item.title;
+}
+
+function getExtension(file) {
+  const match = file.toLowerCase().match(/\.([^.\/]+)$/);
+  return match ? match[1] : "";
+}
+
+function humanTitleFromFile(file) {
+  return file
+    .split("/")
+    .pop()
+    .replace(/\.[^.]+$/, "")
+    .replace(/[_-]+/g, " ")
+    .trim();
+}
+
+function posterLabel(item) {
+  if (item.section === "graphics") return item.category.slice(0, 18);
+  return item.category.slice(0, 18);
 }
