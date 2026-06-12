@@ -6,6 +6,7 @@ const LEGACY_GRAPHIC_PREFIX = "MATERIAL GRAFICO";
 const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp", "svg", "gif", "avif"]);
 const PRIORITY_DOCUMENT_CATEGORIES = ["TROPA", "GUIAS", "DIRIGENTES", "ENA", "MANADA", "HADITAS"];
 const PRIORITY_GRAPHIC_CATEGORIES = ["INSIGNIAS", "LOGOS"];
+const SECTION_PREVIEW_LIMIT = 3;
 const DISPLAY_TITLE_OVERRIDES = {
   "DIRIGENTES/Mejores-Dirigentes-OK.pdf": "Más Preparados Mejores Dirigentes",
   "POR/01-Estatuto.pdf": "Libro I Estatuto",
@@ -40,6 +41,7 @@ const state = {
   query: "",
   category: "TODAS",
   source: "static",
+  expandedSections: new Set(),
 };
 
 const els = {
@@ -257,14 +259,38 @@ function renderSectionGroup({ container, sectionIdPrefix, anchorId, title, kicke
     const fragment = els.sectionTemplate.content.cloneNode(true);
     const section = fragment.querySelector(".category-section");
     const grid = fragment.querySelector(".section-grid");
+    const foot = document.createElement("div");
+    const sectionKey = `${sectionIdPrefix}:${category}`;
+    const isExpanded = state.expandedSections.has(sectionKey);
+    const visibleItems = isExpanded ? sectionItems : sectionItems.slice(0, SECTION_PREVIEW_LIMIT);
 
     section.id = `${sectionIdPrefix}-${slugify(category)}`;
     fragment.querySelector(".section-kicker").textContent = sectionIdPrefix === "graphics" ? "Colección" : "Rama";
     fragment.querySelector(".section-title").textContent = formatCategory(category);
     fragment.querySelector(".section-count").textContent = `${sectionItems.length} archivos`;
 
-    for (const item of sectionItems) {
+    for (const item of visibleItems) {
       grid.appendChild(buildCard(item));
+    }
+
+    if (sectionItems.length > SECTION_PREVIEW_LIMIT) {
+      const toggle = document.createElement("button");
+      toggle.type = "button";
+      toggle.className = "section-toggle";
+      toggle.textContent = isExpanded
+        ? `Mostrar menos de ${formatCategory(category)}`
+        : `Ver todos los archivos de ${formatCategory(category)}`;
+      toggle.addEventListener("click", () => {
+        if (isExpanded) {
+          state.expandedSections.delete(sectionKey);
+        } else {
+          state.expandedSections.add(sectionKey);
+        }
+        renderSections();
+      });
+      foot.className = "section-foot";
+      foot.appendChild(toggle);
+      fragment.querySelector(".category-section").appendChild(foot);
     }
 
     wrapper.appendChild(fragment);
