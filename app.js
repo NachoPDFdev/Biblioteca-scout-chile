@@ -1,5 +1,6 @@
 const CONFIG = window.SCOUT_LIBRARY_CONFIG || {};
 const ASSET_BASE_URL = normalizeBaseUrl(CONFIG.assetBaseUrl || "");
+const HERO_LOGO_PATH = "MATERIAL GRÁFICO/Insignias/logo-biblioteca-scout.png";
 
 const LEGACY_GRAPHIC_PREFIX = "MATERIAL GRAFICO";
 const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp", "svg", "gif", "avif"]);
@@ -63,6 +64,7 @@ const els = {
   viewerOpen: document.querySelector("#viewer-open"),
   viewerClose: document.querySelector("#viewer-close"),
   backToTop: document.querySelector("#back-to-top"),
+  heroLogo: document.querySelector("#hero-logo"),
 };
 
 boot();
@@ -80,6 +82,7 @@ async function boot() {
   els.graphicCount.textContent = `${normalized.graphicCount} recursos gráficos`;
   els.configWarning.hidden = Boolean(ASSET_BASE_URL);
   els.sourceNotice.hidden = state.source !== "static";
+  setHeroLogo();
 
   renderCategories();
   renderQuickNav();
@@ -169,6 +172,13 @@ function renderCategories() {
     });
     els.categoryChips.appendChild(button);
   }
+}
+
+function setHeroLogo() {
+  const url = buildAssetUrl(HERO_LOGO_PATH);
+  if (!url) return;
+  els.heroLogo.src = url;
+  els.heroLogo.hidden = false;
 }
 
 function renderQuickNav() {

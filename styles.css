@@ -95,6 +95,32 @@ body {
   z-index: 1;
 }
 
+.hero-brand {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(220px, 320px);
+  gap: 20px;
+  align-items: center;
+}
+
+.hero-logo-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 180px;
+  padding: 18px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.52), rgba(255,255,255,0.86));
+  border: 1px solid var(--line);
+}
+
+.hero-logo {
+  display: block;
+  width: min(100%, 240px);
+  max-height: 220px;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 24px rgba(43, 48, 33, 0.12));
+}
+
 .hero-copy,
 .filters-subtitle,
 .card-path,
@@ -534,7 +560,7 @@ input:focus {
     padding: 18px 0 108px;
   }
 
-  .hero-grid {
+  .hero-brand {
     grid-template-columns: 1fr;
   }
 
@@ -564,6 +590,14 @@ input:focus {
     background: rgba(255, 250, 241, 0.94);
     backdrop-filter: blur(14px);
     box-shadow: var(--shadow);
+  }
+
+  .hero-logo-wrap {
+    min-height: 130px;
+  }
+
+  .hero-logo {
+    max-height: 160px;
   }
 
   .dock-link {
