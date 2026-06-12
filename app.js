@@ -1,6 +1,11 @@
 const CONFIG = window.SCOUT_LIBRARY_CONFIG || {};
 const ASSET_BASE_URL = normalizeBaseUrl(CONFIG.assetBaseUrl || "");
 const HERO_LOGO_PATH = "MATERIAL GRÁFICO/Insignias/logo-biblioteca-scout.png";
+const CATEGORY_PREVIEW_PATHS = {
+  DIRIGENTES: "MATERIAL GRÁFICO/Biblioteca Scout Chile/dirigentes-biblioteca-scout.png",
+  GUIAS: "MATERIAL GRÁFICO/Biblioteca Scout Chile/guias-biblioteca-scout.png",
+  TROPA: "MATERIAL GRÁFICO/Biblioteca Scout Chile/tropa-biblioteca-scout.png",
+};
 
 const LEGACY_GRAPHIC_PREFIX = "MATERIAL GRAFICO";
 const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp", "svg", "gif", "avif"]);
@@ -58,7 +63,7 @@ const state = {
   query: "",
   category: "TODAS",
   source: "static",
-  expandedSections: new Set(),
+  routeCategory: null,
 };
 
 const els = {
@@ -84,6 +89,8 @@ const els = {
   viewerClose: document.querySelector("#viewer-close"),
   backToTop: document.querySelector("#back-to-top"),
   heroLogo: document.querySelector("#hero-logo"),
+  pageIntro: document.querySelector("#page-intro"),
+  pageBack: document.querySelector("#page-back"),
 };
 
 boot();
@@ -94,6 +101,7 @@ async function boot() {
 
   state.items = normalized.items;
   state.source = normalized.source || "static";
+  state.routeCategory = readRouteCategory();
 
   els.fileCount.textContent = String(normalized.fileCount);
   els.generatedAt.textContent = normalized.generatedAt || "-";
@@ -105,12 +113,14 @@ async function boot() {
 
   renderCategories();
   renderQuickNav();
+  renderPageIntro();
   renderSections();
 
   els.search.addEventListener("input", (event) => {
     state.query = event.target.value.trim().toLowerCase();
     renderSections();
   });
+  els.pageBack.addEventListener("click", () => navigateToCategory(null));
   els.viewerClose.addEventListener("click", closeViewer);
   els.viewerBackdrop.addEventListener("click", closeViewer);
   els.backToTop.addEventListener("click", () => {
@@ -118,6 +128,11 @@ async function boot() {
   });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !els.viewer.hidden) closeViewer();
+  });
+  window.addEventListener("popstate", () => {
+    state.routeCategory = readRouteCategory();
+    renderPageIntro();
+    renderSections();
   });
   window.addEventListener("scroll", syncScrollUi, { passive: true });
   syncScrollUi();
@@ -203,26 +218,45 @@ function setHeroLogo() {
 function renderQuickNav() {
   els.quickNav.replaceChildren();
 
-  addQuickLink("documentos", "Documentos", "PDF");
-  addQuickLink("material-grafico", "Material gráfico", "PNG y logos");
+  addQuickLink("/", "Documentos", "PDF");
+  addQuickLink("/material-grafico", "Material gráfico", "PNG y logos");
 }
 
-function addQuickLink(anchor, title, kicker) {
+function addQuickLink(path, title, kicker) {
   const link = document.createElement("a");
   link.className = "quick-link";
-  link.href = `#${anchor}`;
+  link.href = path;
   link.innerHTML = `<span class="quick-link-kicker">${kicker}</span><strong>${title}</strong>`;
+  link.addEventListener("click", (event) => {
+    if (new URL(link.href, window.location.origin).origin !== window.location.origin) return;
+    event.preventDefault();
+    navigateToPath(path);
+  });
   els.quickNav.appendChild(link);
+}
+
+function renderPageIntro() {
+  if (!state.routeCategory) {
+    els.pageIntro.hidden = true;
+    return;
+  }
+
+  els.pageIntro.hidden = false;
+  els.pageIntro.querySelector(".page-intro-title").textContent = formatCategory(state.routeCategory);
+  els.pageIntro.querySelector(".page-intro-copy").textContent = `Todos los archivos de ${formatCategory(state.routeCategory)} en una sola vista.`;
 }
 
 function renderSections() {
   const visible = filteredItems();
   const visibleDocuments = visible.filter((item) => item.section === "documents");
   const visibleGraphics = visible.filter((item) => item.section === "graphics");
+  const graphicsOnlyPage = state.routeCategory === "MATERIAL-GRAFICO";
 
   els.resultCount.textContent = `${visible.length} resultados`;
   els.documentSections.replaceChildren();
   els.graphicSections.replaceChildren();
+  els.documentSections.hidden = graphicsOnlyPage;
+  els.graphicSections.hidden = false;
 
   renderSectionGroup({
     container: els.documentSections,
@@ -248,6 +282,20 @@ function renderSections() {
 }
 
 function renderSectionGroup({ container, sectionIdPrefix, anchorId, title, kicker, emptyCopy, categories, items }) {
+  const routeIsGraphic = state.routeCategory === "MATERIAL-GRAFICO" || orderedGraphicCategories().includes(state.routeCategory);
+  const routeIsDocument = state.routeCategory && !routeIsGraphic;
+
+  if (routeIsDocument && anchorId === "material-grafico") {
+    container.hidden = true;
+    return;
+  }
+
+  if (routeIsGraphic && anchorId === "documentos") {
+    container.hidden = true;
+    return;
+  }
+
+  container.hidden = false;
   const wrapper = document.createElement("section");
   wrapper.className = "library-group";
   wrapper.id = anchorId;
@@ -267,6 +315,7 @@ function renderSectionGroup({ container, sectionIdPrefix, anchorId, title, kicke
   }
 
   for (const category of categories) {
+    if (state.routeCategory && category !== state.routeCategory) continue;
     const sectionItems = items
       .filter((item) => item.category === category)
       .sort((a, b) => COLLATOR.compare(displayTitle(a), displayTitle(b)));
@@ -277,9 +326,8 @@ function renderSectionGroup({ container, sectionIdPrefix, anchorId, title, kicke
     const section = fragment.querySelector(".category-section");
     const grid = fragment.querySelector(".section-grid");
     const foot = document.createElement("div");
-    const sectionKey = `${sectionIdPrefix}:${category}`;
-    const isExpanded = state.expandedSections.has(sectionKey);
-    const visibleItems = isExpanded ? sectionItems : sectionItems.slice(0, SECTION_PREVIEW_LIMIT);
+    const isCategoryPage = state.routeCategory === category;
+    const visibleItems = isCategoryPage ? sectionItems : sectionItems.slice(0, SECTION_PREVIEW_LIMIT);
 
     section.id = `${sectionIdPrefix}-${slugify(category)}`;
     fragment.querySelector(".section-kicker").textContent = sectionIdPrefix === "graphics" ? "Colección" : "Rama";
@@ -290,20 +338,14 @@ function renderSectionGroup({ container, sectionIdPrefix, anchorId, title, kicke
       grid.appendChild(buildCard(item));
     }
 
-    if (sectionItems.length > SECTION_PREVIEW_LIMIT) {
-      const toggle = document.createElement("button");
-      toggle.type = "button";
+    if (sectionItems.length > SECTION_PREVIEW_LIMIT && !isCategoryPage) {
+      const toggle = document.createElement("a");
+      toggle.href = `/${slugify(category)}`;
       toggle.className = "section-toggle";
-      toggle.textContent = isExpanded
-        ? `Mostrar menos de ${formatCategory(category)}`
-        : `Ver todos los archivos de ${formatCategory(category)}`;
-      toggle.addEventListener("click", () => {
-        if (isExpanded) {
-          state.expandedSections.delete(sectionKey);
-        } else {
-          state.expandedSections.add(sectionKey);
-        }
-        renderSections();
+      toggle.textContent = `Ver todos los archivos de ${formatCategory(category)}`;
+      toggle.addEventListener("click", (event) => {
+        event.preventDefault();
+        navigateToCategory(category);
       });
       foot.className = "section-foot";
       foot.appendChild(toggle);
@@ -336,11 +378,19 @@ function buildCard(item) {
     fragment.querySelector(".card-path").hidden = true;
   }
 
+  const categoryPreviewUrl = buildCategoryPreviewUrl(item.category);
   if (item.kind === "image" && url) {
     const img = document.createElement("img");
     img.className = "card-thumb";
     img.src = url;
     img.alt = title;
+    img.loading = "lazy";
+    preview.appendChild(img);
+  } else if (categoryPreviewUrl) {
+    const img = document.createElement("img");
+    img.className = "card-thumb card-thumb-category";
+    img.src = categoryPreviewUrl;
+    img.alt = formatCategory(item.category);
     img.loading = "lazy";
     preview.appendChild(img);
   } else {
@@ -384,6 +434,8 @@ function buildCard(item) {
 function filteredItems() {
   return state.items.filter((item) => {
     const matchesCategory = state.category === "TODAS" || item.category === state.category;
+    const matchesRoute = !state.routeCategory || item.category === state.routeCategory || (state.routeCategory === "MATERIAL-GRAFICO" && item.section === "graphics");
+    if (!matchesRoute) return false;
     if (!matchesCategory) return false;
     if (!state.query) return true;
 
@@ -434,6 +486,11 @@ function buildAssetUrl(file) {
   return `${ASSET_BASE_URL}/${encodePath(file)}`;
 }
 
+function buildCategoryPreviewUrl(category) {
+  const path = CATEGORY_PREVIEW_PATHS[category];
+  return path ? buildAssetUrl(path) : "";
+}
+
 function normalizeBaseUrl(value) {
   return value.trim().replace(/\/+$/, "");
 }
@@ -453,6 +510,37 @@ function formatBytes(bytes) {
 
 function slugify(value) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function categoryPath(category) {
+  return `/${slugify(category)}`;
+}
+
+function readRouteCategory() {
+  const pathname = normalizePath(window.location.pathname);
+  if (pathname === "/") return null;
+  if (pathname === "/material-grafico") return "MATERIAL-GRAFICO";
+
+  const categories = orderedCategories();
+  return categories.find((category) => categoryPath(category) === pathname) || null;
+}
+
+function navigateToCategory(category) {
+  const path = !category ? "/" : category === "MATERIAL-GRAFICO" ? "/material-grafico" : categoryPath(category);
+  navigateToPath(path);
+}
+
+function navigateToPath(path) {
+  window.history.pushState({}, "", path);
+  state.routeCategory = readRouteCategory();
+  renderPageIntro();
+  renderSections();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function normalizePath(path) {
+  const trimmed = path.replace(/\/+$/, "");
+  return trimmed || "/";
 }
 
 function openViewer(title, url) {

@@ -1,5 +1,67 @@
 {
   "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/material-grafico",
+      "destination": "/"
+    },
+    {
+      "source": "/tropa",
+      "destination": "/"
+    },
+    {
+      "source": "/guias",
+      "destination": "/"
+    },
+    {
+      "source": "/dirigentes",
+      "destination": "/"
+    },
+    {
+      "source": "/manada",
+      "destination": "/"
+    },
+    {
+      "source": "/haditas",
+      "destination": "/"
+    },
+    {
+      "source": "/ena",
+      "destination": "/"
+    },
+    {
+      "source": "/especialidades",
+      "destination": "/"
+    },
+    {
+      "source": "/plan-de-adelanto",
+      "destination": "/"
+    },
+    {
+      "source": "/literatura-general",
+      "destination": "/"
+    },
+    {
+      "source": "/rangers-rovers",
+      "destination": "/"
+    },
+    {
+      "source": "/insignias",
+      "destination": "/"
+    },
+    {
+      "source": "/logos",
+      "destination": "/"
+    },
+    {
+      "source": "/biografias",
+      "destination": "/"
+    },
+    {
+      "source": "/por",
+      "destination": "/"
+    }
+  ],
   "functions": {
     "api/*.js": {
       "maxDuration": 10

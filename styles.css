@@ -334,6 +334,42 @@ input:focus {
   gap: 18px;
 }
 
+.page-intro {
+  display: grid;
+  gap: 8px;
+  padding: 24px 28px;
+  margin-top: 22px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  box-shadow: var(--shadow);
+}
+
+.page-intro-title {
+  margin: 0;
+  font-family: "Fraunces", serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.page-intro-copy {
+  margin: 0;
+  color: var(--muted);
+}
+
+.page-back {
+  width: fit-content;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid rgba(13, 92, 70, 0.18);
+  border-radius: 999px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .library-group {
   display: grid;
   gap: 18px;
@@ -654,7 +690,13 @@ input:focus {
   }
 
   .card-preview {
-    display: none;
+    display: block;
+    min-height: 92px;
+  }
+
+  .card-thumb,
+  .card-poster {
+    height: 92px;
   }
 
   .card-meta {
