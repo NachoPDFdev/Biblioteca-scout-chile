@@ -3,7 +3,11 @@ const ASSET_BASE_URL = normalizeBaseUrl(CONFIG.assetBaseUrl || "");
 const HERO_LOGO_PATH = "MATERIAL GRÁFICO/Insignias/logo-biblioteca-scout.png";
 const CATEGORY_PREVIEW_PATHS = {
   DIRIGENTES: "MATERIAL GRÁFICO/Biblioteca Scout Chile/dirigentes-biblioteca-scout.png",
+  ENA: "MATERIAL GRÁFICO/Biblioteca Scout Chile/ena-biblioteca-scout.png",
   GUIAS: "MATERIAL GRÁFICO/Biblioteca Scout Chile/guias-biblioteca-scout.png",
+  HADITAS: "MATERIAL GRÁFICO/Biblioteca Scout Chile/haditas-biblioteca-scout.png",
+  MANADA: "MATERIAL GRÁFICO/Biblioteca Scout Chile/manada-biblioteca-scout.png",
+  "RANGERS - ROVERS": "MATERIAL GRÁFICO/Biblioteca Scout Chile/rover-ranger-biblioteca-scout.png",
   TROPA: "MATERIAL GRÁFICO/Biblioteca Scout Chile/tropa-biblioteca-scout.png",
 };
 
