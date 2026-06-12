@@ -16,9 +16,13 @@
         <div class="hero-brand">
           <div class="hero-copywrap">
             <p class="eyebrow">Biblioteca digital</p>
-            <h1>Biblioteca Scout Chilena Rescatada</h1>
+            <h1>Biblioteca Scout Chile</h1>
+            <p class="hero-copy hero-copy-strong">Archivo digital rescatado.</p>
             <p class="hero-copy">
-              Documentos por rama y material gráfico en un solo lugar.
+              Documentos por rama, logos e insignias en un solo lugar.
+            </p>
+            <p class="hero-note">
+              Archivo digital independiente de preservación documental. No corresponde al sitio oficial de la Agrupación Nacional de Boy Scouts de Chile.
             </p>
           </div>
           <div class="hero-logo-wrap">
@@ -32,10 +36,22 @@
         </div>
         <div class="hero-actions" id="quick-nav"></div>
         <div class="hero-summary">
-          <p><strong id="file-count">0</strong> archivos</p>
-          <p><span id="document-count">0 documentos</span></p>
-          <p><span id="graphic-count">0 recursos gráficos</span></p>
-          <p>Actualizado <span id="generated-at">-</span></p>
+          <article class="summary-card">
+            <strong id="file-count">0</strong>
+            <span>Archivos</span>
+          </article>
+          <article class="summary-card">
+            <strong id="document-count">0</strong>
+            <span>PDFs</span>
+          </article>
+          <article class="summary-card">
+            <strong id="graphic-count">0</strong>
+            <span>Recursos gráficos</span>
+          </article>
+          <article class="summary-card">
+            <strong id="generated-at">-</strong>
+            <span>Actualizado</span>
+          </article>
         </div>
       </section>
 
@@ -101,6 +117,7 @@
         <div class="card-actions">
           <button class="ghost-button read-button" type="button">Abrir</button>
           <a class="primary-link" target="_blank" rel="noreferrer">Descargar PDF</a>
+          <button class="ghost-button copy-button" type="button">Copiar enlace</button>
         </div>
       </article>
     </template>

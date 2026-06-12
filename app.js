@@ -7,6 +7,23 @@ const IMAGE_EXTENSIONS = new Set(["png", "jpg", "jpeg", "webp", "svg", "gif", "a
 const PRIORITY_DOCUMENT_CATEGORIES = ["TROPA", "GUIAS", "DIRIGENTES", "ENA", "MANADA", "HADITAS"];
 const PRIORITY_GRAPHIC_CATEGORIES = ["INSIGNIAS", "LOGOS"];
 const SECTION_PREVIEW_LIMIT = 3;
+const CATEGORY_LABELS = {
+  TODAS: "Todas",
+  "LITERATURA GENERAL": "Literatura",
+  "PLAN DE ADELANTO": "Adelanto",
+  "RANGERS - ROVERS": "Rovers/Rangers",
+  ESPECIALIDADES: "Especialidades",
+  DIRIGENTES: "Dirigentes",
+  TROPA: "Tropa",
+  MANADA: "Manada",
+  GUIAS: "Guías",
+  HADITAS: "Haditas",
+  ENA: "ENA",
+  LOGOS: "Logos",
+  INSIGNIAS: "Insignias",
+  POR: "POR",
+  BIOGRAFIAS: "Biografías",
+};
 const DISPLAY_TITLE_OVERRIDES = {
   "DIRIGENTES/Mejores-Dirigentes-OK.pdf": "Más Preparados Mejores Dirigentes",
   "POR/01-Estatuto.pdf": "Libro I Estatuto",
@@ -80,8 +97,8 @@ async function boot() {
 
   els.fileCount.textContent = String(normalized.fileCount);
   els.generatedAt.textContent = normalized.generatedAt || "-";
-  els.documentCount.textContent = `${normalized.documentCount} documentos`;
-  els.graphicCount.textContent = `${normalized.graphicCount} recursos gráficos`;
+  els.documentCount.textContent = String(normalized.documentCount);
+  els.graphicCount.textContent = String(normalized.graphicCount);
   els.configWarning.hidden = Boolean(ASSET_BASE_URL);
   els.sourceNotice.hidden = state.source !== "static";
   setHeroLogo();
@@ -304,6 +321,7 @@ function buildCard(item) {
   const preview = fragment.querySelector(".card-preview");
   const link = fragment.querySelector(".primary-link");
   const inspectButton = fragment.querySelector(".ghost-button");
+  const copyButton = fragment.querySelector(".copy-button");
   const meta = fragment.querySelector(".card-meta");
   const url = buildAssetUrl(item.file);
   const title = displayTitle(item);
@@ -341,11 +359,23 @@ function buildCard(item) {
     link.setAttribute("download", "");
     inspectButton.textContent = item.kind === "image" ? "Ver imagen" : "Leer aquí";
     inspectButton.addEventListener("click", () => openViewer(title, url));
+    copyButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(url);
+        copyButton.textContent = "Copiado";
+        window.setTimeout(() => {
+          copyButton.textContent = "Copiar enlace";
+        }, 1400);
+      } catch (error) {
+        copyButton.textContent = "No se pudo";
+      }
+    });
   } else {
     link.removeAttribute("href");
     link.classList.add("is-disabled");
     link.textContent = "Configurar R2";
     inspectButton.disabled = true;
+    copyButton.disabled = true;
   }
 
   return fragment;
@@ -396,8 +426,7 @@ function orderedByPriority(categories, priorityList) {
 }
 
 function formatCategory(category) {
-  if (category === "TODAS") return "Todas";
-  return category;
+  return CATEGORY_LABELS[category] || category;
 }
 
 function buildAssetUrl(file) {
