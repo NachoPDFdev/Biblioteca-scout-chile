@@ -11,6 +11,32 @@ Sitio para publicar la carpeta `SCOUT` desde Cloudflare R2, separando documentos
 - `api/inventory.js`: lista R2 en tiempo real desde Vercel
 - `inventory.json`: fallback estático si la API no responde
 - `generate_inventory.py`: regenera `inventory.json` desde una carpeta fuente
+- `archives/boyscouts-cl/`: espejo estático local de `https://boyscouts.cl/c22/`
+
+## Respaldo de boyscouts.cl
+
+El espejo local quedó integrado al proyecto:
+
+- acceso resumido: `./archives/boyscouts-cl/index.html`
+- portada espejada: `./archives/boyscouts-cl/boyscouts.cl/c22/index.html`
+
+Comando usado para capturarlo:
+
+```bash
+wget --mirror \
+  --page-requisites \
+  --convert-links \
+  --adjust-extension \
+  --no-parent \
+  --directory-prefix ./archives/boyscouts-cl \
+  https://boyscouts.cl/c22/
+```
+
+Notas:
+
+- `wget` también trae endpoints auxiliares de WordPress como `feed`, `rest_route` y `xmlrpc`.
+- El sitio original contiene al menos un link mal formado, por lo que puede aparecer alguna ruta con nombre extraño dentro del espejo.
+- Para refrescar el respaldo, vuelve a ejecutar el comando dentro de esta carpeta.
 
 ## Despliegue recomendado
 

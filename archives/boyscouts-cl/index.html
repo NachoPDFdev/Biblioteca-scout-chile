@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Archivo boyscouts.cl | Biblioteca Scout Chilena Rescatada</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: #f4efe4;
+        --paper: rgba(255, 251, 243, 0.92);
+        --paper-strong: #fffaf1;
+        --ink: #1f2a24;
+        --muted: #5e675f;
+        --line: rgba(31, 42, 36, 0.12);
+        --accent: #0d5c46;
+        --accent-2: #b4642a;
+        --shadow: 0 20px 50px rgba(43, 48, 33, 0.11);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: "Work Sans", sans-serif;
+        background:
+          linear-gradient(180deg, rgba(255,255,255,0.35), transparent 18%),
+          radial-gradient(circle at top left, rgba(180, 100, 42, 0.16), transparent 32%),
+          radial-gradient(circle at top right, rgba(13, 92, 70, 0.13), transparent 28%),
+          linear-gradient(180deg, #f8f2e7 0%, var(--bg) 100%);
+      }
+
+      main {
+        width: min(1220px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 36px 0 48px;
+      }
+
+      .panel {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px);
+        padding: 28px;
+      }
+
+      .eyebrow,
+      .card-kicker {
+        margin: 0;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        font-size: 0.74rem;
+        font-weight: 700;
+        color: var(--accent);
+      }
+
+      h1,
+      h2 {
+        font-family: "Fraunces", serif;
+      }
+
+      h1 {
+        margin: 10px 0 12px;
+        max-width: 12ch;
+        font-size: clamp(2.7rem, 6vw, 5rem);
+        line-height: 0.95;
+      }
+
+      .hero-copy,
+      .note,
+      .card-path {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .hero-actions,
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 14px;
+        border-radius: 999px;
+        text-decoration: none;
+        font: inherit;
+        font-weight: 600;
+        transition: 140ms ease;
+      }
+
+      .button-primary {
+        background: var(--accent);
+        color: white;
+      }
+
+      .button-ghost {
+        border: 1px solid rgba(13, 92, 70, 0.18);
+        background: white;
+        color: var(--ink);
+      }
+
+      .button:hover {
+        transform: translateY(-1px);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 16px;
+        margin-top: 22px;
+      }
+
+      .card {
+        display: grid;
+        gap: 12px;
+        padding: 20px;
+        border-radius: 24px;
+        border: 1px solid var(--line);
+        background: var(--paper-strong);
+      }
+
+      .card h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        line-height: 1.3;
+      }
+
+      .list-panel {
+        margin-top: 22px;
+      }
+
+      .list-panel h2 {
+        margin: 0 0 8px;
+        font-size: clamp(1.5rem, 3vw, 2.3rem);
+      }
+
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 22px 0 0;
+        display: grid;
+        gap: 12px;
+      }
+
+      li {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: var(--paper-strong);
+      }
+
+      li strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      @media (max-width: 860px) {
+        main {
+          width: min(100%, calc(100% - 18px));
+          padding: 18px 0 36px;
+        }
+
+        li {
+          flex-direction: column;
+          align-items: start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="panel">
+        <p class="eyebrow">Respaldo web</p>
+        <h1>Archivo local de boyscouts.cl</h1>
+        <p class="hero-copy">
+          Espejo estático del sitio de la Agrupación Nacional de Boy Scouts de Chile bajo
+          <code>/archives/boyscouts-cl/boyscouts.cl/c22/</code>, pensado como respaldo HTML de lectura
+          navegable desde este mismo servidor.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="./site/">Entrar al sitio clonado</a>
+          <a class="button button-ghost" href="../../index.html">Volver a la biblioteca</a>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel card">
+          <p class="card-kicker">Página pedida</p>
+          <h2>Historia de la Insignia de Madera</h2>
+          <p class="card-path">Original: <code>?page_id=1108</code></p>
+          <div class="links">
+            <a class="button button-primary" href="./pages/1108/">Abrir espejo</a>
+          </div>
+        </article>
+        <article class="panel card">
+          <p class="card-kicker">Página pedida</p>
+          <h2>Manada de Lobatos</h2>
+          <p class="card-path">Original: <code>?page_id=101#tab-173121</code></p>
+          <div class="links">
+            <a class="button button-primary" href="./pages/101/#tab-173121">Abrir espejo</a>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel list-panel">
+        <p class="eyebrow">Páginas encontradas</p>
+        <h2>Accesos archivados dentro del espejo</h2>
+        <p class="note">
+          Esta lista referencia las páginas HTML capturadas durante el mirror. Los recursos
+          estáticos del sitio quedan junto a ellas dentro del mismo árbol local.
+        </p>
+        <ul>
+          <li><div><strong>Portada principal</strong><span class="card-path">/c22/</span></div><a class="button button-ghost" href="./site/">Abrir</a></li>
+          <li><div><strong>INSTITUCIONAL</strong><span class="card-path">?page_id=53</span></div><a class="button button-ghost" href="./pages/53/">Abrir</a></li>
+          <li><div><strong>ORGANIZACIÓN</strong><span class="card-path">?page_id=55</span></div><a class="button button-ghost" href="./pages/55/">Abrir</a></li>
+          <li><div><strong>SECCIONES</strong><span class="card-path">?page_id=57</span></div><a class="button button-ghost" href="./pages/57/">Abrir</a></li>
+          <li><div><strong>EVENTOS</strong><span class="card-path">?page_id=59</span></div><a class="button button-ghost" href="./pages/59/">Abrir</a></li>
+          <li><div><strong>CONTACTO</strong><span class="card-path">?page_id=63</span></div><a class="button button-ghost" href="./pages/63/">Abrir</a></li>
+          <li><div><strong>FINALIDAD, PRINCIPIOS Y OBJETIVOS DE LA CORPORACIÓN</strong><span class="card-path">?page_id=84</span></div><a class="button button-ghost" href="./pages/84/">Abrir</a></li>
+          <li><div><strong>MISIÓN &amp; VISIÓN DE LA CORPORACIÓN</strong><span class="card-path">?page_id=86</span></div><a class="button button-ghost" href="./pages/86/">Abrir</a></li>
+          <li><div><strong>PROYECTO EDUCATIVO</strong><span class="card-path">?page_id=88</span></div><a class="button button-ghost" href="./pages/88/">Abrir</a></li>
+          <li><div><strong>DIRECTORIO NACIONAL</strong><span class="card-path">?page_id=90</span></div><a class="button button-ghost" href="./pages/90/">Abrir</a></li>
+          <li><div><strong>CORTE NACIONAL DE HONOR</strong><span class="card-path">?page_id=92</span></div><a class="button button-ghost" href="./pages/92/">Abrir</a></li>
+          <li><div><strong>RONDA DE HADITAS</strong><span class="card-path">?page_id=99</span></div><a class="button button-ghost" href="./pages/99/">Abrir</a></li>
+          <li><div><strong>MANADA DE LOBATOS</strong><span class="card-path">?page_id=101</span></div><a class="button button-ghost" href="./pages/101/">Abrir</a></li>
+          <li><div><strong>COMPAÑÍA DE GUÍAS</strong><span class="card-path">?page_id=103</span></div><a class="button button-ghost" href="./pages/103/">Abrir</a></li>
+          <li><div><strong>TROPA DE SCOUTS</strong><span class="card-path">?page_id=105</span></div><a class="button button-ghost" href="./pages/105/">Abrir</a></li>
+          <li><div><strong>CLAN DE ROVERS &amp; RANGERS</strong><span class="card-path">?page_id=107</span></div><a class="button button-ghost" href="./pages/107/">Abrir</a></li>
+          <li><div><strong>EVENTOS NACIONALES</strong><span class="card-path">?page_id=248</span></div><a class="button button-ghost" href="./pages/248/">Abrir</a></li>
+          <li><div><strong>EVENTOS INTERNACIONALES</strong><span class="card-path">?page_id=250</span></div><a class="button button-ghost" href="./pages/250/">Abrir</a></li>
+          <li><div><strong>MIEMBROS E.N.A.</strong><span class="card-path">?page_id=445</span></div><a class="button button-ghost" href="./pages/445/">Abrir</a></li>
+          <li><div><strong>Equipo Nacional de Adiestramiento</strong><span class="card-path">?page_id=1043</span></div><a class="button button-ghost" href="./pages/1043/">Abrir</a></li>
+          <li><div><strong>HISTORIA DEL ADIESTRAMIENTO EN CHILE</strong><span class="card-path">?page_id=1080</span></div><a class="button button-ghost" href="./pages/1080/">Abrir</a></li>
+          <li><div><strong>INSIGNIAS Y DISTINTIVOS</strong><span class="card-path">?page_id=1099</span></div><a class="button button-ghost" href="./pages/1099/">Abrir</a></li>
+          <li><div><strong>HISTORIA DE LA INSIGNIA DE MADERA</strong><span class="card-path">?page_id=1108</span></div><a class="button button-ghost" href="./pages/1108/">Abrir</a></li>
+          <li><div><strong>OBTENCIÓN DE LA INSIGNIA DE MADERA</strong><span class="card-path">?page_id=1117</span></div><a class="button button-ghost" href="./pages/1117/">Abrir</a></li>
+          <li><div><strong>PUBLICACIONES E.N.A.</strong><span class="card-path">?page_id=1124</span></div><a class="button button-ghost" href="./pages/1124/">Abrir</a></li>
+          <li><div><strong>BIBLIOTECA</strong><span class="card-path">?page_id=1502</span></div><a class="button button-ghost" href="./pages/1502/">Abrir</a></li>
+          <li><div><strong>Boletín Institucional</strong><span class="card-path">?page_id=2683</span></div><a class="button button-ghost" href="./pages/2683/">Abrir</a></li>
+          <li><div><strong>Historia del Movimiento Scouts en Chile</strong><span class="card-path">?page_id=2736</span></div><a class="button button-ghost" href="./pages/2736/">Abrir</a></li>
+          <li><div><strong>Inscripción Miembro Colaborador</strong><span class="card-path">?page_id=2939</span></div><a class="button button-ghost" href="./pages/2939/">Abrir</a></li>
+          <li><div><strong>CURSOS PARA DIRIGENTES</strong><span class="card-path">?page_id=2947</span></div><a class="button button-ghost" href="./pages/2947/">Abrir</a></li>
+          <li><div><strong>Padres y Apoderados</strong><span class="card-path">?page_id=3024</span></div><a class="button button-ghost" href="./pages/3024/">Abrir</a></li>
+          <li><div><strong>Para ti Dirigente</strong><span class="card-path">?page_id=6640</span></div><a class="button button-ghost" href="./pages/6640/">Abrir</a></li>
+          <li><div><strong>BUSCA TU GRUPO</strong><span class="card-path">?page_id=8083</span></div><a class="button button-ghost" href="./pages/8083/">Abrir</a></li>
+        </ul>
+      </section>
+    </main>
+  </body>
+</html>

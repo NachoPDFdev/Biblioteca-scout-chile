@@ -39,7 +39,8 @@ body {
 
 .hero,
 .controls,
-.category-section {
+.category-section,
+.archive-callout {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 28px;
@@ -49,7 +50,8 @@ body {
 
 .hero,
 .controls,
-.category-section {
+.category-section,
+.archive-callout {
   padding: 28px;
 }
 
@@ -388,6 +390,33 @@ input:focus {
   line-height: 0.98;
 }
 
+.archive-callout {
+  margin-top: 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+}
+
+.archive-callout h2 {
+  margin: 10px 0 8px;
+  font-family: "Fraunces", serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+}
+
+.archive-copy {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+  max-width: 60ch;
+}
+
+.archive-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .section-title {
   margin: 6px 0 0;
   font-family: "Fraunces", serif;
@@ -670,6 +699,11 @@ input:focus {
 
   .hero-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .archive-callout {
+    flex-direction: column;
+    align-items: start;
   }
 
   .filters-header,
